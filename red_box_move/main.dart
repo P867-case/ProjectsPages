@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: "Red box move",
       home: Padding(
         padding: EdgeInsets.all(32.0),
         child: SquareAnimation(),
