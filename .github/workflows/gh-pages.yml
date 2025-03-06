@@ -20,12 +20,12 @@ jobs:
 
       - name: Install dependencies (for new-project)
         run: |
-          cd new-project
+          cd red_box_move
           npm install
 
       - name: Build new-project
         run: |
-          cd new-project
+          cd red_box_move
           npm run build
 
       - name: Deploy to GitHub Pages
@@ -33,5 +33,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: |
-            old-project
-            new-project/dist
+            TestOfApp
+            red_box_move/dist
