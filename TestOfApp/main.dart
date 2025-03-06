@@ -9,7 +9,7 @@ void main() {
 }
 
 
-/// Application self
+/// Само приложение
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-///[Widget] displaying the home page consisting of an image the the buttons.
+///[Виджет] отображает домашнюю страницу, состоящую из изображения и кнопок.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -32,18 +32,18 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-/// State of a [HomePage].
+///Состояние [Домашней страницы].
 class _HomePageState extends State<HomePage> {
   final TextEditingController _url = TextEditingController();
   bool _isActiveButton = false;
   bool _isDarkened = false;
   String? _selectedValue;
   
-  /// Called after `element` is attached to the DOM.
+  /// Вызывается после присоединения `element` к DOM.
   void onElementAttached(web.HTMLDivElement element) {
     final web.Element? located = web.document.querySelector('#someIdThatICanFindLater');
     assert(located == element, 'Wrong `element` located!');
-    /// Do things with `element` or `located`, or call your code now...
+    /// Выполнение действия с `element` или `located` или вызовите свой код прямо сейчас...
     element.style.backgroundColor = 'green';
   }
 
@@ -51,42 +51,42 @@ class _HomePageState extends State<HomePage> {
     element as web.HTMLDivElement;
     element.id = 'someIdThatICanFindLater';
 
-    /// Create the observer
+    /// Создайте observer
     final web.ResizeObserver observer = web.ResizeObserver((
       JSArray<web.ResizeObserverEntry> entries,
       web.ResizeObserver observer,
     ) {
       if (element.isConnected) {
-        /// The observer is done, disconnect it.
+        /// observer готов, отключите его.
         observer.disconnect();
-        /// Call our callback.
+        /// вызов функции.
         onElementAttached(element);
       }
     }.toJS);
 
-    /// Connect the observer.
+    /// Подключени к observer.
     observer.observe(element);
   }
 
   void _addImageToHtml(String url) {
     if (url.isNotEmpty) {
-      /// find container for append
+      /// Ищем контейнер для добавления
       var container = html.document.getElementById('someIdThatICanFindLater');
-      /// clear 
+      /// очищаем
       container?.innerHtml = '';
       
-      /// create image
+      /// создаем картинку
       var imageElement = html.ImageElement()
       ..src = url
       ..alt = 'Image from URL'
       ..id = 'Image';
 
-      /// add target for onDoubleClick
+      ///создаем таргет для onDoubleClick
       imageElement.onDoubleClick.listen((event) {
         _toggleFullscreen();
       });
 
-      /// set size for image
+      /// устанавливаем размеры для картинки
       imageElement.style.width = '100%';
       imageElement.style.height = '100%'; 
 
@@ -94,22 +94,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Function to switch full screen mode
+  /// Функция для перключения режима
   void _toggleFullscreen() {
-    /// Get the current element in fullscreen mode
+    ///Получить текущий элемент в полноэкранном режиме
     var fullscreenElement = html.document.fullscreenElement;
     var image = html.document.getElementById('Image');
 
     if (fullscreenElement == null) {
-      /// Switch to full screen mode
+      /// Переключиться в полноэкранный режим
       image?.requestFullscreen();
     } else {
-      /// Exit full screen mode
+      /// Выход в полноэкранный режим
       html.document.exitFullscreen();
     }
   }
 
-  /// check is not Empty TextField URL
+  /// Проверка не является пустым текстовым полем URL
   void _checkIfButtonShouldBeEnabled(String text) {
     setState(() {
       _isActiveButton = text.isNotEmpty;
@@ -124,14 +124,14 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(32, 16, 32, 16),
-            /// The main widget that contains instructions for displaying widgets
+            /// Основной виджет, содержащий инструкции по отображению виджетов.
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Expanded(
                   child: AspectRatio(
                     aspectRatio: 1,
-                    /// container for an image, which the application will then add via the _addImageToHtml function
+                    /// контейнер для изображения, которое приложение затем добавит с помощью функции _addImageToHtml
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.grey,
@@ -167,7 +167,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          /// Add darkening when opening the action menu
+          /// Добавить затемнение при открытии меню действий
           if (_isDarkened)
             ColorFiltered(
               colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.darken),
