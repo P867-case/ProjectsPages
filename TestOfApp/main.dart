@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   bool _isActiveButton = false;
   bool _isDarkened = false;
   String? _selectedValue;
+  bool _isfullscreen = true;
   
   /// Вызывается после присоединения `element` к DOM.
   void onElementAttached(web.HTMLDivElement element) {
@@ -97,16 +98,9 @@ class _HomePageState extends State<HomePage> {
   /// Функция для перключения режима
   void _toggleFullscreen() {
     ///Получить текущий элемент в полноэкранном режиме
-    var fullscreenElement = html.document.fullscreenElement;
-    var image = html.document.getElementById('Image');
-
-    if (fullscreenElement == null) {
-      /// Переключиться в полноэкранный режим
-      image?.requestFullscreen();
-    } else {
-      /// Выход в полноэкранный режим
-      html.document.exitFullscreen();
-    }
+    setState(() {
+      _isfullscreen = !_isfullscreen;
+    });
   }
 
   /// Проверка не является пустым текстовым полем URL
@@ -118,8 +112,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(),
       body: Stack(
         children: [
           Padding(
@@ -128,42 +122,47 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    /// контейнер для изображения, которое приложение затем добавит с помощью функции _addImageToHtml
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(12),
+                Center(
+                  child:  SizedBox(
+                    height: _isfullscreen ? 500 : screenSize.height - 100,
+                    child:  Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        /// контейнер для изображения, которое приложение затем добавит с помощью функции _addImageToHtml
+                        child:Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child:HtmlElementView.fromTagName(
+                            tagName: 'div',
+                            onElementCreated: (element) => onElementCreated(element),
+                          )
+                        )
                       ),
-                      child:HtmlElementView.fromTagName(
-                        tagName: 'div',
-                        onElementCreated: (element) => onElementCreated(element),
-                      )
                     ),
+                  )
+                ),
+                if (_isfullscreen)
+                 Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(hintText: 'Image URL'),
+                          controller: _url,
+                          onChanged: _checkIfButtonShouldBeEnabled,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: _isActiveButton ? () => _addImageToHtml(_url.text) : null,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+                          child: Icon(Icons.arrow_forward),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(hintText: 'Image URL'),
-                        controller: _url,
-                        onChanged: _checkIfButtonShouldBeEnabled,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _isActiveButton ? () => _addImageToHtml(_url.text) : null,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-                        child: Icon(Icons.arrow_forward),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 64),
+                  SizedBox(height: 64)
               ],
             ),
           ),
@@ -173,63 +172,68 @@ class _HomePageState extends State<HomePage> {
               colorFilter: const ColorFilter.mode(Colors.black54, BlendMode.darken),
               child: ModalBarrier(dismissible: false, color: Colors.transparent),
             ),
+          Positioned(
+            right: 15,
+            bottom: 15,
+            child: PopupMenuButton<String>(
+              offset: Offset(0, -120),
+              child:Container(
+                width: 56.0,
+                height: 56.0,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.menu,
+                  size: 26.0,
+                  color: Colors.white,
+                ),
+              ),
+              onCanceled: () {
+                setState(() {
+                  _isDarkened = false;
+                });
+              },
+              onOpened: () {
+                setState(() {
+                  _isDarkened = true;
+                });
+              },
+              onSelected: (value) {
+                /// Обработать выбор
+                if (value == 'Enter fullscreen') {
+                  setState(() {
+                    _selectedValue = value;
+                    _isDarkened = false;
+                    _isfullscreen = false;
+                  });
+                } else {
+                  setState(() {
+                    _selectedValue = value;
+                    _isDarkened = false;
+                    _isfullscreen = true;
+                  });
+                  html.document.exitFullscreen();
+                }
+              },
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    value: 'Enter fullscreen',
+                    child: Text('Enter fullscreen'),
+                  ),
+                  PopupMenuItem(
+                    value: 'Exit fullscreen',
+                    child: Text('Exit fullscreen'),
+                  ),
+                ];
+              },
+            ),
+          )
         ],
       ), 
-      floatingActionButton: PopupMenuButton<String>(
-        offset: Offset(0, -120),
-        child:Container(
-          width: 56.0,
-          height: 56.0,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            Icons.menu,
-            size: 26.0,
-            color: Colors.white,
-          ),
-        ),
-        onCanceled: () {
-          setState(() {
-            _isDarkened = false;
-          });
-        },
-        onOpened: () {
-          setState(() {
-            _isDarkened = true;
-          });
-        },
-        onSelected: (value) {
-          /// Обработать выбор
-          if (value == 'Enter fullscreen') {
-            _toggleFullscreen();
-            setState(() {
-              _selectedValue = value;
-              _isDarkened = false;
-            });
-          } else {
-            setState(() {
-              _selectedValue = value;
-              _isDarkened = false;
-            });
-            html.document.exitFullscreen();
-          }
-        },
-        itemBuilder: (context) {
-          return [
-            PopupMenuItem(
-              value: 'Enter fullscreen',
-              child: Text('Enter fullscreen'),
-            ),
-            PopupMenuItem(
-              value: 'Exit fullscreen',
-              child: Text('Exit fullscreen'),
-            ),
-          ];
-        },
-      ),
     );
   }
 }
