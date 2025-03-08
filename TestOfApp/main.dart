@@ -6,7 +6,7 @@ void main() {
   runApp(const MyApp());
 }
 
-/// Основное приложение
+/// Основное приложение, которое запускает главный виджет.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// Виджет домашней страницы
+/// Виджет домашней страницы, который управляет состоянием и отображением.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -28,19 +28,19 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-/// Состояние домашней страницы
+/// Состояние домашней страницы, которое управляет логикой и UI.
 class _HomePageState extends State<HomePage> {
   final TextEditingController _urlController = TextEditingController();
   bool _isActiveButton = false;
   bool _isDarkened = false;
   bool _isFullscreen = true;
 
-  /// Обработчик изменения текста в поле ввода
+  /// Обработчик изменения текста в поле ввода.
   void _onTextChanged(String text) {
     setState(() => _isActiveButton = text.isNotEmpty);
   }
 
-  /// Добавление изображения в HTML-контейнер
+  /// Добавляет изображение в HTML-контейнер.
   void _addImageToHtml(String url) {
     if (url.isEmpty) return;
 
@@ -58,12 +58,12 @@ class _HomePageState extends State<HomePage> {
     container?.append(imageElement);
   }
 
-  /// Переключение полноэкранного режима
+  /// Переключает полноэкранный режим.
   void _toggleFullscreen() {
     setState(() => _isFullscreen = !_isFullscreen);
   }
 
-  /// Обработчик создания HTML-элемента
+  /// Обработчик создания HTML-элемента.
   void _onElementCreated(web.HTMLDivElement element) {
     element.id = 'image-container';
 
@@ -79,6 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size; 
     return Scaffold(
       body: Stack(
         children: [
@@ -92,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color: Colors.grey
                     ),
-                    height: _isFullscreen ? 500 : 550,
+                    height: _isFullscreen ? size.height - 150 : size.height - 100,
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: HtmlElementView.fromTagName(
